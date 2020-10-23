@@ -130,6 +130,16 @@ static void browser_source_get_defaults(obs_data_t *settings)
 	obs_data_set_default_bool(settings, "reroute_audio", false);
 }
 
+static void browser_source_get_defaults_v2(obs_data_t *settings)
+{
+	browser_source_get_defaults(settings);
+
+	struct obs_video_info ovi = {0};
+	obs_get_video_info(&ovi);
+	obs_data_set_default_int(settings, "width", ovi.base_width);
+	obs_data_set_default_int(settings, "height", ovi.base_height);
+}
+
 static bool is_local_file_modified(obs_properties_t *props, obs_property_t *,
 				   obs_data_t *settings)
 {
@@ -340,7 +350,8 @@ void RegisterBrowserSource()
 			    OBS_SOURCE_AUDIO |
 #endif
 			    OBS_SOURCE_CUSTOM_DRAW | OBS_SOURCE_INTERACTION |
-			    OBS_SOURCE_DO_NOT_DUPLICATE;
+			    OBS_SOURCE_DO_NOT_DUPLICATE |
+			    OBS_SOURCE_CAP_OBSOLETE;
 	info.get_properties = browser_source_get_properties;
 	info.get_defaults = browser_source_get_defaults;
 	info.icon_type = OBS_ICON_TYPE_BROWSER;
@@ -419,7 +430,13 @@ void RegisterBrowserSource()
 		static_cast<BrowserSource *>(data)->SetActive(false);
 	};
 
+	obs_source_info info_v2 = info;
+	info_v2.version = 2;
+	info_v2.output_flags &= ~OBS_SOURCE_CAP_OBSOLETE;
+	info_v2.get_defaults = browser_source_get_defaults_v2;
+
 	obs_register_source(&info);
+	obs_register_source(&info_v2);
 }
 
 /* ========================================================================= */
