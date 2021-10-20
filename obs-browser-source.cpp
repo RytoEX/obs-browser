@@ -180,9 +180,12 @@ bool BrowserSource::CreateBrowser()
 
 #if ENABLE_LOCAL_FILE_URL_SCHEME
 		if (is_local) {
-			/* Disable web security for file:// URLs to allow
-			 * local content access to remote APIs */
-			cefBrowserSettings.web_security = STATE_DISABLED;
+			/* Enable file access and universal access from file://
+			/* URLs to allow local content access to remote APIs */
+			cefBrowserSettings.file_access_from_file_urls =
+				STATE_ENABLED;
+			cefBrowserSettings.universal_access_from_file_urls =
+				STATE_ENABLED;
 		}
 #endif
 
